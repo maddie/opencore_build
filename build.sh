@@ -22,7 +22,7 @@ done
 if [[ $(command -v brew) == "" ]]; then 
 		prompt "Homebrew is not installed. Would you like to install it now?"
     pushd /tmp >/dev/null
-		ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" || exit 1
+		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" || exit 1
     popd >/dev/null
 	else
 		echo "Homebrew is installed..."
@@ -91,11 +91,10 @@ echo "Building Debug version of Lilu."
 xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
 echo "Building Release version of Lilu."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-cd /tmp/BuildingAllTheShit/AppleALC
 echo "Copying Debug version of Lilu into AppleALC, VirutalSMC and WhateverGreen in order to compile them!"
-cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/AppleALC/  || exit 1
-cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/VirtualSMC/ || exit 1
-cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/WhateverGreen/ || exit 1
+cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/AppleALC  || exit 1
+cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/VirtualSMC || exit 1
+cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/WhateverGreen || exit 1
 cd /tmp/BuildingAllTheShit/AppleALC
 echo "Building Release version of AppleALC."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
