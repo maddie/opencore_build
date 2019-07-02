@@ -19,24 +19,6 @@ do
   exit;  
 done
 
-if [[ $(command -v brew) == "" ]]; then 
-		prompt "Homebrew is not installed. Would you like to install it now?"
-    pushd /tmp >/dev/null
-		/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" || exit 1
-    popd >/dev/null
-	else
-		echo "Homebrew is installed..."
-fi
-
-if command -v python3 &>/dev/null; then
-    echo "Python 3 is installed."
-else
-    prompt "Python 3 is not installed. Would you like to install it now?"
-    pushd /tmp >/dev/null
-    brew install python3 || exit 1
-    popd >/dev/null
-fi
-
 if [ "$(nasm -v)" = "" ] || [ "$(nasm -v | grep Apple)" != "" ]; then
   echo "Missing or incompatible nasm!"
   echo "Download the latest nasm from http://www.nasm.us/pub/nasm/releasebuilds/"
