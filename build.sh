@@ -64,6 +64,7 @@ echo "Cloning acidanthera's Repos."
 git clone https://github.com/acidanthera/Lilu.git > /dev/null 2>&1 || exit 1
 git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
 git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
+git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
 git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
 git clone https://github.com/acidanthera/OpenCorePkg.git > /dev/null 2>&1 || exit 1
 git clone https://github.com/acidanthera/AptioFixPkg.git > /dev/null 2>&1 || exit 1
@@ -73,10 +74,11 @@ echo "Building Debug version of Lilu."
 xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
 echo "Building Release version of Lilu."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-echo "Copying Debug version of Lilu into AppleALC, VirutalSMC and WhateverGreen in order to compile them!"
+echo "Copying Debug version of Lilu into AppleALC, VirutalSMC, WhateverGreen and CPUFriend in order to compile them!"
 cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/AppleALC  || exit 1
 cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/VirtualSMC || exit 1
 cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/WhateverGreen || exit 1
+cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/CPUFriend || exit 1
 cd /tmp/BuildingAllTheShit/AppleALC
 echo "Building Release version of AppleALC."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
@@ -85,6 +87,9 @@ echo "Building Release version of VirtualSMC."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
 cd /tmp/BuildingAllTheShit/WhateverGreen
 echo "Building Release version of WhateverGreen."
+xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
+cd /tmp/BuildingAllTheShit/CPUFriend
+echo "Building Release version of CPUFriend."
 xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
 cd /tmp/BuildingAllTheShit/OpenCorePkg
 echo "Building latest commit of Opencore."
@@ -126,6 +131,7 @@ cp -r /tmp/BuildingAllTheShit/Lilu/build/Release/Lilu.kext ~/Desktop/CompletedBu
 cp -r /tmp/BuildingAllTheShit/AppleALC/build/Release/AppleALC.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
 cp -r /tmp/BuildingAllTheShit/VirtualSMC/build/Release/package/Kexts/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
 cp -r /tmp/BuildingAllTheShit/WhateverGreen/build/Release/WhateverGreen.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
+cp -r /tmp/BuildingAllTheShit/CPUFriend/build/Release/CPUFriend.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
 cp -r /tmp/BuildingAllTheShit/VirtualSMC/build/Release/package/Drivers/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
 cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
 cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
