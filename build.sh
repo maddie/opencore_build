@@ -133,25 +133,25 @@ repoClone() {
 
 buildPackages() {
   cd /tmp/BuildingAllTheShit/Lilu
-  echo "Building Debug version of Lilu."
+  echo "Building latest commit Debug version of Lilu."
   xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
-  echo "Building Release version of Lilu."
+  echo "Building latest commit of Lilu."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
   cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/AppleALC  || exit 1
   cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/VirtualSMC || exit 1
   cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/WhateverGreen || exit 1
   cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/CPUFriend || exit 1
   cd /tmp/BuildingAllTheShit/AppleALC
-  echo "Building Release version of AppleALC."
+  echo "Building latest commit of AppleALC."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
   cd /tmp/BuildingAllTheShit/VirtualSMC
-  echo "Building Release version of VirtualSMC."
+  echo "Building latest commit of VirtualSMC."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
   cd /tmp/BuildingAllTheShit/WhateverGreen
-  echo "Building Release version of WhateverGreen."
+  echo "Building latest commit of WhateverGreen."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
   cd /tmp/BuildingAllTheShit/CPUFriend
-  echo "Building Release version of CPUFriend."
+  echo "Building latest commit of CPUFriend."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
   cd /tmp/BuildingAllTheShit/OpenCorePkg
   echo "Building latest commit of Opencore."
