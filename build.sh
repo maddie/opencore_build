@@ -61,58 +61,42 @@ updaterepo() {
 }
 
 repocheck() {
-  if [ -z "$(git status --porcelain)" ]; then 
-    status=0
-  else 
-    status=1
-  fi
-  if [ $status = 0 ]; then
-    echo "$REPO repo is up to date."
-  elif [ $status = 1 ]; then
-    echo "$REPO repo is not up to date."
-    sleep 1
-    updaterepo &>/dev/null || exit 1
-  fi
-}
+  local repos[0]=~/Downloads/OpenCore_Build/Lilu
+  local repos[1]=~/Downloads/OpenCore_Build/WhateverGreen
+  local repos[2]=~/Downloads/OpenCore_Build/AppleALC
+  local repos[3]=~/Downloads/OpenCore_Build/CPUFriend
+  local repos[4]=~/Downloads/OpenCore_Build/VirtualSMC
+  local repos[5]=~/Downloads/OpenCore_Build/OpenCorePkg
+  local repos[6]=~/Downloads/OpenCore_Build/AptioFixPkg
+  local repos[7]=~/Downloads/OpenCore_Build/AppleSupportPkg
 
-liluCheck() {
-  local REPO=Lilu
-  repocheck
-}
+  local name[0]=Lilu
+  local name[1]=WhateverGreen
+  local name[2]=AppleALC
+  local name[3]=CPUFriend
+  local name[4]=VirtualSMC
+  local name[5]=OpenCorePkg
+  local name[6]=AptioFixPkg
+  local name[7]=AppleSupportPkg
 
-whateverGreenCheck() {
-  local REPO=WhateverGreen
-  repocheck
-}
-
-applealcCheck() {
-  local REPO=AppleALC
-  repocheck
-}
-
-cpuFriendCheck() {
-  local REPO=CPUFriend
-  repocheck
-}
-
-virtualSmcCheck() {
-  local REPO=VirtualSMC
-  repocheck
-}
-
-openCorePkgCheck() {
-  local REPO=OpenCorePkg
-  repocheck
-}
-
-aptioFixPkgCheck() {
-  local REPO=AptioFixPkg
-  repocheck
-}
-
-appleSupportPkgCheck() {
-  local REPO=AppleSupportPkg
-  repocheck
+  for i in "${repos[@]}"; 
+  do
+    cd $i
+    if [ -z "$(git status --porcelain)" ]; then
+      status=0
+    else 
+      status=1
+    fi
+  done
+  for x in "${name[@]}"; do
+    if [ $status = 0 ]; then
+      echo "$x repo is up to date."
+    elif [ $status = 1 ]; then
+      echo "$x repo is not up to date."
+      sleep 1
+      updaterepo &>/dev/null || exit 1
+    fi
+  done
 }
 
 repoClone() {
@@ -198,22 +182,7 @@ copyBuildProducts() {
 if [ -d ~/Downloads/OpenCore_Build ]; then
   echo "Repo already exist."
   echo "Checking if there is any updates to repos."
-  cd ~/Downloads/OpenCore_Build/Lilu
-  liluCheck
-  cd ~/Downloads/OpenCore_Build/WhateverGreen
-  whateverGreenCheck
-  cd ~/Downloads/OpenCore_Build/AppleALC
-  applealcCheck
-  cd ~/Downloads/OpenCore_Build/CPUFriend
-  cpuFriendCheck
-  cd ~/Downloads/OpenCore_Build/VirtualSMC
-  virtualSmcCheck
-  cd ~/Downloads/OpenCore_Build/OpenCorePkg
-  openCorePkgCheck
-  cd ~/Downloads/OpenCore_Build/AptioFixPkg
-  aptioFixPkgCheck
-  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
-  appleSupportPkgCheck
+  repocheck
   sleep 1
     if [ $status = 1 ]; then
       echo "Building Updated Packages."
