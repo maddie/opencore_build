@@ -51,6 +51,18 @@ if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
   popd >/dev/null
 fi
 
+buildrelease() {
+  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
+}
+
+builddebug() {
+  xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
+}
+
+buildmactool() {
+  ./macbuild.tool > /dev/null 2>&1 || exit 1
+}
+
 updaterepo() {
   if [ ! -d "$2" ]; then
     git clone "$1" -b "$3" --depth=1 "$2" || exit 1
@@ -61,47 +73,22 @@ updaterepo() {
 }
 
 repocheck() {
-  local repos[0]=~/Downloads/OpenCore_Build/Lilu
-  local repos[1]=~/Downloads/OpenCore_Build/WhateverGreen
-  local repos[2]=~/Downloads/OpenCore_Build/AppleALC
-  local repos[3]=~/Downloads/OpenCore_Build/CPUFriend
-  local repos[4]=~/Downloads/OpenCore_Build/VirtualSMC
-  local repos[5]=~/Downloads/OpenCore_Build/OpenCorePkg
-  local repos[6]=~/Downloads/OpenCore_Build/AptioFixPkg
-  local repos[7]=~/Downloads/OpenCore_Build/AppleSupportPkg
-
-  local name[0]=Lilu
-  local name[1]=WhateverGreen
-  local name[2]=AppleALC
-  local name[3]=CPUFriend
-  local name[4]=VirtualSMC
-  local name[5]=OpenCorePkg
-  local name[6]=AptioFixPkg
-  local name[7]=AppleSupportPkg
-
-  for i in "${repos[@]}"; 
-  do
-    cd $i
-    if [ -z "$(git status --porcelain)" ]; then
-      status=0
-    else 
-      status=1
-    fi
-  done
-  for x in "${name[@]}"; do
-    if [ $status = 0 ]; then
-      echo "$x repo is up to date."
-    elif [ $status = 1 ]; then
-      echo "$x repo is not up to date."
-      sleep 1
-      updaterepo &>/dev/null || exit 1
-    fi
-  done
+  if [ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] ; then
+    status=0
+  else
+    status=1
+  fi
+  if [ $status = 0 ]; then
+    echo "$REPO repo is up to date."
+  elif [ $status = 1 ]; then
+    echo "$REPO repo is not up to date."
+    sleep 1
+    git pull &>/dev/null || exit 1
+  fi
 }
 
 repoClone() {
   echo "Cloning acidanthera's Repos."
-  sleep 1
   repos[0]=https://github.com/acidanthera/Lilu.git
   repos[1]=https://github.com/acidanthera/WhateverGreen.git
   repos[2]=https://github.com/acidanthera/AppleALC.git
@@ -111,41 +98,37 @@ repoClone() {
   repos[6]=https://github.com/acidanthera/AptioFixPkg.git
   repos[7]=https://github.com/acidanthera/AppleSupportPkg.git
 
-  cd ~/Downloads/OpenCore_Build
-  for i in "${repos[@]}"; do git clone $i; done > /dev/null 2>&1 || exit 1
-}
+  dir[0]=~/Downloads/OpenCore_Build/Lilu
+  dir[1]=~/Downloads/OpenCore_Build/WhateverGreen
+  dir[2]=~/Downloads/OpenCore_Build/AppleALC
+  dir[3]=~/Downloads/OpenCore_Build/CPUFriend
+  dir[4]=~/Downloads/OpenCore_Build/VirtualSMC
 
-buildPackages() {
+  pkg[0]=~/Downloads/OpenCore_Build/OpenCorePkg
+  pkg[1]=~/Downloads/OpenCore_Build/AptioFixPkg
+  pkg[2]=~/Downloads/OpenCore_Build/AppleSupportPkg
+
+  cd ~/Downloads/OpenCore_Build
+  for i in "${repos[@]}"; do 
+    git clone $i > /dev/null 2>&1 || exit 1
+  done 
+
   cd ~/Downloads/OpenCore_Build/Lilu
-  echo "Building latest committed Debug version of Lilu."
-  xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
-  echo "Building latest committed Release version of Lilu."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC  || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend || exit 1
-  cd ~/Downloads/OpenCore_Build/AppleALC
-  echo "Building latest committed Release version of AppleALC."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/VirtualSMC
-  echo "Building latest committed Release version of VirtualSMC."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/WhateverGreen
-  echo "Building latest committed Release version of WhateverGreen."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/CPUFriend
-  echo "Building latest committed Release version of CPUFriend."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/OpenCorePkg
-  echo "Building latest committed Release version of Opencore."
-  ./macbuild.tool > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/AptioFixPkg
-  echo "Building latest committed Release version of AptioFixPkg."
-  ./macbuild.tool > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
-  echo "Building latest committed Release version of AppleSupportPkg."
-  ./macbuild.tool > /dev/null 2>&1 || exit 1
+  echo "Building latest commited Debug version of Lilu"
+  builddebug 
+
+  for x in "${dir[@]}"; do
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext $x
+    cd $x
+    echo "Building latest commited Release version of $x"
+    buildrelease
+  done 
+
+  for x in "${pkg[@]}"; do
+    cd $x
+    echo "Building latest commited Release version of $x"
+    buildmactool
+  done 
 }
 
 makeDirectories() {
@@ -179,29 +162,127 @@ copyBuildProducts() {
   echo "All Done!"
 }
 
+lilucheck() {
+  local REPO=Lilu
+  cd ~/Downloads/OpenCore_Build/Lilu
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    builddebug
+    buildrelease
+  fi
+}
+
+wegcheck() {
+  local REPO=WhateverGreen
+  cd ~/Downloads/OpenCore_Build/WhateverGreen
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildrelease
+  fi
+}
+
+alccheck() {
+  local REPO=AppleALC
+  cd ~/Downloads/OpenCore_Build/AppleALC
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildrelease
+  fi
+}
+
+cpucheck() {
+  local REPO=CPUFriend
+  cd ~/Downloads/OpenCore_Build/CPUFriend
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildrelease
+  fi
+}
+
+smccheck() {
+  local REPO=VirtualSMC
+  cd ~/Downloads/OpenCore_Build/VirtualSMC
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildrelease
+  fi
+}
+
+occheck() {
+  local REPO=OpenCorePkg
+  cd ~/Downloads/OpenCore_Build/OpenCorePkg
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildmactool
+  fi
+}
+
+aptiocheck() {
+  local REPO=AptioFixPkg
+  cd ~/Downloads/OpenCore_Build/AptioFixPkg
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildmactool
+  fi
+}
+
+supportcheck() {
+  local REPO=AppleSupportPkg
+  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
+  repocheck
+  sleep 1
+  if [ $status = 1 ]; then
+    updaterepo $REPO master
+    sleep 1
+    buildmactool
+  fi
+}
+
 if [ -d ~/Downloads/OpenCore_Build ]; then
   echo "Repo already exist."
   echo "Checking if there is any updates to repos."
-  repocheck
-  sleep 1
-    if [ $status = 1 ]; then
-      echo "Building Updated Packages."
-      buildPackages
-      makeDirectories
-      copyBuildProducts
-    elif [ ! -d ~/Desktop/CompletedBuilds ]; then
-      echo "Missing CompletedBuilds on your desktop."
-      makeDirectories
-      copyBuildProducts
-    else
-      echo "You are already up-to-date. No need to rebuild packages."
-      echo "All Done!"
-    fi
+  lilucheck
+  wegcheck
+  alccheck
+  cpucheck
+  smccheck
+  occheck
+  aptiocheck
+  supportcheck
+  if [ ! -d ~/Desktop/CompletedBuilds ]; then
+    echo "Missing CompletedBuilds on your desktop."
+    makeDirectories
+    copyBuildProducts
+  else
+    echo "Updating Packages."
+    makeDirectories
+    copyBuildProducts
+  fi
 else
   mkdir ~/Downloads/OpenCore_Build
   cd ~/Downloads/OpenCore_Build
   repoClone
-  buildPackages
   makeDirectories
   copyBuildProducts
 fi
