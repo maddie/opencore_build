@@ -30,9 +30,9 @@ if [ "$(nasm -v)" = "" ] || [ "$(nasm -v | grep Apple)" != "" ]; then
   rm -rf nasm-*
   curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${nasmzip}" || exit 1
   unzip -q "${nasmzip}" nasm*/nasm nasm*/ndisasm || exit 1
-  sudo mkdir -p /usr/local/bin || exit 1
-  sudo mv nasm*/nasm /usr/local/bin/ || exit 1
-  sudo mv nasm*/ndisasm /usr/local/bin/ || exit 1
+  sudo mkdir -p /usr//bin || exit 1
+  sudo mv nasm*/nasm /usr//bin/ || exit 1
+  sudo mv nasm*/ndisasm /usr//bin/ || exit 1
   rm -rf "${nasmzip}" nasm-*
   popd >/dev/null
 fi
@@ -45,9 +45,9 @@ if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
   rm -f mtoc mtoc-mac64.zip
   curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/mtoc-mac64.zip" || exit 1
   unzip -q mtoc-mac64.zip mtoc || exit 1
-  sudo mkdir -p /usr/local/bin || exit 1
-  sudo cp mtoc /usr/local/bin/mtoc || exit 1
-  sudo mv mtoc /usr/local/bin/mtoc.NEW || exit 1
+  sudo mkdir -p /usr//bin || exit 1
+  sudo cp mtoc /usr//bin/mtoc || exit 1
+  sudo mv mtoc /usr//bin/mtoc.NEW || exit 1
   popd >/dev/null
 fi
 
@@ -61,19 +61,17 @@ updaterepo() {
 }
 
 repocheck() {
-  if [ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] ; then
+  if [ -z "$(git status --porcelain)" ]; then 
     status=0
-    status0txt="$REPO repo is up to date."
-  else
+  else 
     status=1
-    status1txt="$REPO repo is not up to date."
   fi
   if [ $status = 0 ]; then
-    echo "$status0txt"
+    echo "$REPO repo is up to date."
   elif [ $status = 1 ]; then
-    echo "$status1txt"
+    echo "$REPO repo is not up to date."
     sleep 1
-    git pull &>/dev/null || exit 1
+    updaterepo &>/dev/null || exit 1
   fi
 }
 
@@ -120,131 +118,119 @@ appleSupportPkgCheck() {
 repoClone() {
   echo "Cloning acidanthera's Repos."
   sleep 1
-  cd /tmp/BuildingAllTheShit || exit 1 > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/Lilu.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/OpenCorePkg.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/AptioFixPkg.git > /dev/null 2>&1 || exit 1
-  git clone https://github.com/acidanthera/AppleSupportPkg.git > /dev/null 2>&1 || exit 1
+  repos[0]=https://github.com/acidanthera/Lilu.git
+  repos[1]=https://github.com/acidanthera/WhateverGreen.git
+  repos[2]=https://github.com/acidanthera/AppleALC.git
+  repos[3]=https://github.com/acidanthera/CPUFriend.git
+  repos[4]=https://github.com/acidanthera/VirtualSMC.git
+  repos[5]=https://github.com/acidanthera/OpenCorePkg.git
+  repos[6]=https://github.com/acidanthera/AptioFixPkg.git
+  repos[7]=https://github.com/acidanthera/AppleSupportPkg.git
+
+  cd ~/Downloads/OpenCore_Build
+  for i in "${repos[@]}"; do git clone $i; done > /dev/null 2>&1 || exit 1
 }
 
 buildPackages() {
-  cd /tmp/BuildingAllTheShit/Lilu
-  echo "Building latest commit Debug version of Lilu."
+  cd ~/Downloads/OpenCore_Build/Lilu
+  echo "Building latest committed Debug version of Lilu."
   xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
-  echo "Building latest commit of Lilu."
+  echo "Building latest committed Release version of Lilu."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/AppleALC  || exit 1
-  cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/VirtualSMC || exit 1
-  cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/WhateverGreen || exit 1
-  cp -r /tmp/BuildingAllTheShit/Lilu/build/Debug/Lilu.kext /tmp/BuildingAllTheShit/CPUFriend || exit 1
-  cd /tmp/BuildingAllTheShit/AppleALC
-  echo "Building latest commit of AppleALC."
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC  || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend || exit 1
+  cd ~/Downloads/OpenCore_Build/AppleALC
+  echo "Building latest committed Release version of AppleALC."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/VirtualSMC
-  echo "Building latest commit of VirtualSMC."
+  cd ~/Downloads/OpenCore_Build/VirtualSMC
+  echo "Building latest committed Release version of VirtualSMC."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/WhateverGreen
-  echo "Building latest commit of WhateverGreen."
+  cd ~/Downloads/OpenCore_Build/WhateverGreen
+  echo "Building latest committed Release version of WhateverGreen."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/CPUFriend
-  echo "Building latest commit of CPUFriend."
+  cd ~/Downloads/OpenCore_Build/CPUFriend
+  echo "Building latest committed Release version of CPUFriend."
   xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/OpenCorePkg
-  echo "Building latest commit of Opencore."
+  cd ~/Downloads/OpenCore_Build/OpenCorePkg
+  echo "Building latest committed Release version of Opencore."
   ./macbuild.tool > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/AptioFixPkg
-  echo "Building latest commit of AptioFixPkg."
+  cd ~/Downloads/OpenCore_Build/AptioFixPkg
+  echo "Building latest committed Release version of AptioFixPkg."
   ./macbuild.tool > /dev/null 2>&1 || exit 1
-  cd /tmp/BuildingAllTheShit/AppleSupportPkg
-  echo "Building latest commit of AppleSupportPkg."
+  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
+  echo "Building latest committed Release version of AppleSupportPkg."
   ./macbuild.tool > /dev/null 2>&1 || exit 1
 }
 
 makeDirectories() {
-  if [ ! -d ~/Desktop/CompletedBuilds ]
-  then
-    echo "Creating Opencore EFI structure."
+    if [ ! -d ~/Desktop/CompletedBuilds ]; then
+    echo "Creating Opencore EFI structure on your desktop."
     mkdir ~/Desktop/CompletedBuilds
-    mkdir ~/Desktop/CompletedBuilds/EFI
-    mkdir ~/Desktop/CompletedBuilds/EFI/BOOT
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/ACPI
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Drivers
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Kexts
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Tools
-    mkdir ~/Desktop/CompletedBuilds/Documents
   else
-    echo "Updating current CompletedBuilds folder."
-    rm -rf ~/Desktop/CompletedBuilds || exit 1
+    echo "Updating current CompletedBuilds folder on your desktop."
+    rm -rf ~/Desktop/CompletedBuilds
     mkdir ~/Desktop/CompletedBuilds
-    mkdir ~/Desktop/CompletedBuilds/EFI
-    mkdir ~/Desktop/CompletedBuilds/EFI/BOOT
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/ACPI
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Drivers
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Kexts
-    mkdir ~/Desktop/CompletedBuilds/EFI/OC/Tools
-    mkdir ~/Desktop/CompletedBuilds/Documents
   fi
 }
 
 copyBuildProducts() {
-  echo "Copying Built Products into EFI Structure."
-  cp -r /tmp/BuildingAllTheShit/Lilu/build/Release/Lilu.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AppleALC/build/Release/AppleALC.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/VirtualSMC/build/Release/package/Kexts/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/WhateverGreen/build/Release/WhateverGreen.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/CPUFriend/build/Release/CPUFriend.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/VirtualSMC/build/Release/package/Drivers/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/AppleSupportPkg/Binaries/RELEASE/*.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/OpenCorePkg/Binaries/RELEASE/OpenCore.efi ~/Desktop/CompletedBuilds/EFI/OC > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/OpenCorePkg/Binaries/RELEASE/BOOTx64.efi ~/Desktop/CompletedBuilds/EFI/BOOT > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/OpenCorePkg/Docs/Configuration.pdf ~/Desktop/CompletedBuilds/Documents > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/OpenCorePkg/Docs/SampleFull.plist ~/Desktop/CompletedBuilds/EFI/OC/Sample_config.plist > /dev/null 2>&1 || exit 1
-  cp -r /tmp/BuildingAllTheShit/OpenCorePkg/Docs/AcpiSamples/*.dsl ~/Desktop/CompletedBuilds/EFI/OC/ACPI > /dev/null 2>&1 || exit 1
+  echo "Copying Built Products into EFI Structure folder on your desktop."
+  cp ~/Downloads/OpenCore_Build/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip ~/Desktop/CompletedBuilds/ 
+  cd ~/Desktop/CompletedBuilds
+  unzip *.zip > /dev/null 2>&1 || exit 1
+  rm -rf *.zip
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Release/Lilu.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/AppleALC/build/Release/AppleALC.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/package/Kexts/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/WhateverGreen/build/Release/WhateverGreen.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/CPUFriend/build/Release/CPUFriend.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/package/Drivers/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
+  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
+  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
+  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
+  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
+  cp -r ~/Downloads/OpenCore_Build/AppleSupportPkg/Binaries/RELEASE/*.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   echo "All Done!"
 }
 
-if [ -d "/tmp/BuildingAllTheShit" ]
-then
+if [ -d ~/Downloads/OpenCore_Build ]; then
   echo "Repo already exist."
-  echo "Checking if there is any updates to each repo"
-  cd /tmp/BuildingAllTheShit/Lilu
+  echo "Checking if there is any updates to repos."
+  cd ~/Downloads/OpenCore_Build/Lilu
   liluCheck
-  cd /tmp/BuildingAllTheShit/WhateverGreen
+  cd ~/Downloads/OpenCore_Build/WhateverGreen
   whateverGreenCheck
-  cd /tmp/BuildingAllTheShit/AppleALC
+  cd ~/Downloads/OpenCore_Build/AppleALC
   applealcCheck
-  cd /tmp/BuildingAllTheShit/CPUFriend
+  cd ~/Downloads/OpenCore_Build/CPUFriend
   cpuFriendCheck
-  cd /tmp/BuildingAllTheShit/VirtualSMC
+  cd ~/Downloads/OpenCore_Build/VirtualSMC
   virtualSmcCheck
-  cd /tmp/BuildingAllTheShit/OpenCorePkg
+  cd ~/Downloads/OpenCore_Build/OpenCorePkg
   openCorePkgCheck
-  cd /tmp/BuildingAllTheShit/AptioFixPkg
+  cd ~/Downloads/OpenCore_Build/AptioFixPkg
   aptioFixPkgCheck
-  cd /tmp/BuildingAllTheShit/AppleSupportPkg
+  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
   appleSupportPkgCheck
-  if [ $status = 1 ]
-  then
-    echo "Building Updated Packages."
-    buildPackages
-    makeDirectories
-    copyBuildProducts
-  else
-    echo "You are already up-to-date. No need to rebuild packages."
-  fi
+  sleep 1
+    if [ $status = 1 ]; then
+      echo "Building Updated Packages."
+      buildPackages
+      makeDirectories
+      copyBuildProducts
+    elif [ ! -d ~/Desktop/CompletedBuilds ]; then
+      echo "Missing CompletedBuilds on your desktop."
+      makeDirectories
+      copyBuildProducts
+    else
+      echo "You are already up-to-date. No need to rebuild packages."
+      echo "All Done!"
+    fi
 else
-  mkdir /tmp/BuildingAllTheShit
-  cd /tmp/BuildingAllTheShit
+  mkdir ~/Downloads/OpenCore_Build
+  cd ~/Downloads/OpenCore_Build
   repoClone
   buildPackages
   makeDirectories
