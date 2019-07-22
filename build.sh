@@ -52,15 +52,18 @@ if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
 fi
 
 buildrelease() {
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
+  echo "Building latest commited Release version."
+  xcodebuild -configuration Release
 }
 
 builddebug() {
-  xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
+  echo "Building latest commited Debug version."
+  xcodebuild -configuration Debug
 }
 
 buildmactool() {
-  ./macbuild.tool > /dev/null 2>&1 || exit 1
+  echo "Building latest commited Release version."
+  ./macbuild.tool
 }
 
 updaterepo() {
@@ -68,22 +71,46 @@ updaterepo() {
     git clone "$1" -b "$3" --depth=1 "$2" || exit 1
   fi
   pushd "$2" >/dev/null
+  echo "Updating Repo"
   git pull
   popd >/dev/null
 }
 
 repocheck() {
-  if [ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] ; then
-    status=0
+  localoutput="$(git log --pretty=%H ...refs/heads/master^ | head -n 1)"
+  remoteoutput="$(git ls-remote origin -h refs/heads/master |cut -f1)"
+
+  if [ "$localoutput" = "$remoteoutput" ] ; then
+    local status=0
   else
-    status=1
+    local status=1
   fi
   if [ $status = 0 ]; then
     echo "$REPO repo is up to date."
   elif [ $status = 1 ]; then
     echo "$REPO repo is not up to date."
     sleep 1
-    git pull &>/dev/null || exit 1
+    echo "Updating Repo"
+    git pull
+    builddebug
+    buildrelease
+  fi
+}
+
+pkgcheck() {
+  if [ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] ; then
+    local status=0
+  else
+    local status=1
+  fi
+  if [ $status = 0 ]; then
+    echo "$REPO repo is up to date."
+  elif [ $status = 1 ]; then
+    echo "$REPO repo is not up to date."
+    sleep 1
+    echo "Updating Repo"
+    git pull
+    buildmactool
   fi
 }
 
@@ -110,7 +137,7 @@ repoClone() {
 
   cd ~/Downloads/OpenCore_Build
   for i in "${repos[@]}"; do 
-    git clone $i > /dev/null 2>&1 || exit 1
+    git clone $i
   done 
 
   cd ~/Downloads/OpenCore_Build/Lilu
@@ -167,12 +194,6 @@ lilucheck() {
   cd ~/Downloads/OpenCore_Build/Lilu
   repocheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    builddebug
-    buildrelease
-  fi
 }
 
 wegcheck() {
@@ -180,11 +201,6 @@ wegcheck() {
   cd ~/Downloads/OpenCore_Build/WhateverGreen
   repocheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildrelease
-  fi
 }
 
 alccheck() {
@@ -192,11 +208,6 @@ alccheck() {
   cd ~/Downloads/OpenCore_Build/AppleALC
   repocheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildrelease
-  fi
 }
 
 cpucheck() {
@@ -204,11 +215,6 @@ cpucheck() {
   cd ~/Downloads/OpenCore_Build/CPUFriend
   repocheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildrelease
-  fi
 }
 
 smccheck() {
@@ -216,47 +222,27 @@ smccheck() {
   cd ~/Downloads/OpenCore_Build/VirtualSMC
   repocheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildrelease
-  fi
 }
 
 occheck() {
   local REPO=OpenCorePkg
   cd ~/Downloads/OpenCore_Build/OpenCorePkg
-  repocheck
+  pkgcheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildmactool
-  fi
 }
 
 aptiocheck() {
   local REPO=AptioFixPkg
   cd ~/Downloads/OpenCore_Build/AptioFixPkg
-  repocheck
+  pkgcheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildmactool
-  fi
 }
 
 supportcheck() {
   local REPO=AppleSupportPkg
   cd ~/Downloads/OpenCore_Build/AppleSupportPkg
-  repocheck
+  pkgcheck
   sleep 1
-  if [ $status = 1 ]; then
-    updaterepo $REPO master
-    sleep 1
-    buildmactool
-  fi
 }
 
 if [ -d ~/Downloads/OpenCore_Build ]; then
