@@ -265,10 +265,10 @@ copyBuildProducts() {
   rm -rf *.zip
   cp -r ~/Downloads/OpenCore_Build/Lilu/build/Release/Lilu.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
   cp -r ~/Downloads/OpenCore_Build/AppleALC/build/Release/AppleALC.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/package/Kexts/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
+  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
   cp -r ~/Downloads/OpenCore_Build/WhateverGreen/build/Release/WhateverGreen.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
   cp -r ~/Downloads/OpenCore_Build/CPUFriend/build/Release/CPUFriend.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/package/Drivers/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
+  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/EfiDriver/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
@@ -279,80 +279,157 @@ copyBuildProducts() {
 }
 
 lilucheck() {
-  local REPO=Lilu
   cd ~/Downloads/OpenCore_Build/Lilu
   repocheck
   sleep 1
 }
 
 wegcheck() {
-  local REPO=WhateverGreen
   cd ~/Downloads/OpenCore_Build/WhateverGreen
   repocheck
   sleep 1
 }
 
 alccheck() {
-  local REPO=AppleALC
   cd ~/Downloads/OpenCore_Build/AppleALC
   repocheck
   sleep 1
 }
 
 cpucheck() {
-  local REPO=CPUFriend
   cd ~/Downloads/OpenCore_Build/CPUFriend
   repocheck
   sleep 1
 }
 
 smccheck() {
-  local REPO=VirtualSMC
   cd ~/Downloads/OpenCore_Build/VirtualSMC
   repocheck
   sleep 1
 }
 
 occheck() {
-  local REPO=OpenCorePkg
   cd ~/Downloads/OpenCore_Build/OpenCorePkg
   pkgcheck
   sleep 1
 }
 
 aptiocheck() {
-  local REPO=AptioFixPkg
   cd ~/Downloads/OpenCore_Build/AptioFixPkg
   pkgcheck
   sleep 1
 }
 
 supportcheck() {
-  local REPO=AppleSupportPkg
   cd ~/Downloads/OpenCore_Build/AppleSupportPkg
   pkgcheck
   sleep 1
 }
 
 shellcheck() {
-  local REPO=OpenCoreShell
   cd ~/Downloads/OpenCore_Build/OpenCoreShell
   pkgcheck
   sleep 1
 }
 
-if [ -d ~/Downloads/OpenCore_Build ]; then
-  echo "Acidanthera's Repos already exist."
-  echo "Checking if there is any updates to the repos."
-  lilucheck
-  wegcheck
-  alccheck
-  cpucheck
-  smccheck
-  occheck
-  aptiocheck
-  supportcheck
-  shellcheck
+liluclone() {
+  local dir[0]=~/Downloads/OpenCore_Build/Lilu
+  local dir[1]=~/Downloads/OpenCore_Build/WhateverGreen
+  local dir[2]=~/Downloads/OpenCore_Build/AppleALC
+  local dir[3]=~/Downloads/OpenCore_Build/CPUFriend
+  local dir[4]=~/Downloads/OpenCore_Build/VirtualSMC
+
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning Lilu repo."
+  git clone https://github.com/acidanthera/Lilu.git > /dev/null 2>&1 || exit 1
+  cd ~/Downloads/OpenCore_Build/Lilu
+  builddebug
+  buildrelease
+  for x in "${dir[@]}"
+  do
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext $x
+    cd $x
+  done
+  sleep 1
+}
+
+wegclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning WhateverGreen repo."
+  git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen
+  cd ~/Downloads/OpenCore_Build/WhateverGreen
+  buildrelease
+  sleep 1
+}
+
+alcclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning AppleALC repo."
+  git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC
+  cd ~/Downloads/OpenCore_Build/AppleALC
+  buildrelease
+  sleep 1
+}
+
+cpuclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning CPUFriend repo."
+  git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend
+  cd ~/Downloads/OpenCore_Build/CPUFriend
+  buildrelease
+  sleep 1
+}
+
+smcclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning VirtualSMC repo."
+  git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
+  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC
+  cd ~/Downloads/OpenCore_Build/VirtualSMC
+  buildrelease
+  sleep 1
+}
+
+occlone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning OpenCore repo."
+  git clone https://github.com/acidanthera/OpenCorePkg.gitt > /dev/null 2>&1 || exit 1
+  cd ~/Downloads/OpenCore_Build/OpenCorePkg
+  buildmactool
+  sleep 1
+}
+
+aptioclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning AptioFix repo."
+  git clone https://github.com/acidanthera/AptioFixPkg.git > /dev/null 2>&1 || exit 1
+  cd ~/Downloads/OpenCore_Build/AptioFixPkg
+  buildmactool
+  sleep 1
+}
+
+supportclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning AppleSupport repo."
+  git clone https://github.com/acidanthera/AppleSupportPkg.git > /dev/null 2>&1 || exit 1
+  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
+  buildmactool
+  sleep 1
+}
+
+shellclone() {
+  cd ~/Downloads/OpenCore_Build
+  echo "Cloning OpenCoreShell repo."
+  git clone https://github.com/acidanthera/OpenCoreShell.git > /dev/null 2>&1 || exit 1
+  cd ~/Downloads/OpenCore_Build/OpenCoreShell
+  buildmactool
+  sleep 1
+}
+
+buildfoldercheck() {
   if [ ! -d ~/Desktop/CompletedBuilds ]; then
     echo "Missing CompletedBuilds folder on your desktop."
     makeDirectories
@@ -362,6 +439,83 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     makeDirectories
     copyBuildProducts
   fi
+}
+
+if [ -d ~/Downloads/OpenCore_Build ]; then
+  echo "Acidanthera's Repos already exist."
+  if [ ! -d ~/Downloads/OpenCore_Build/Lilu ]; then
+    echo "Missing Lilu repo folder."
+    liluclone
+  else
+    echo "Lilu repo exist, checking for updates."
+    lilucheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/WhateverGreen ]; then
+    echo "Missing WhateverGreen repo folder."
+    wegclone
+  else
+    echo "WhateverGreen repo exist, checking for updates."
+    wegcheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/AppleALC ]; then
+    echo "Missing AppleALC repo folder."
+    alcclone
+  else
+    echo "AppleALC repo exist, checking for updates."
+    alccheck
+  fi
+  
+  if [ ! -d ~/Downloads/OpenCore_Build/CPUFriend ]; then
+    echo "Missing CPUFriend repo folder."
+    cpuclone
+  else
+    echo "CPUFriend repo exist, checking for updates."
+    cpucheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/VirtualSMC ]; then
+    echo "Missing VirtualSMC repo folder."
+    smcclone
+  else
+    echo "VirtualSMC repo exist, checking for updates."
+    smccheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/OpenCorePkg ]; then
+    echo "Missing OpenCorePkg repo folder."
+    occlone
+  else
+    echo "OpenCorePkg repo exist, checking for updates."
+    occheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/AptioFixPkg ]; then
+    echo "Missing AptioFixPkg repo folder."
+    aptioclone
+  else
+    echo "AptioFixPkg repo exist, checking for updates."
+    aptiocheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/AppleSupportPkg ]; then
+    echo "Missing AppleSupportPkg repo folder."
+    supportclone
+  else
+    echo "AppleSupportPkg repo exist, checking for updates."
+    supportcheck
+  fi
+
+  if [ ! -d ~/Downloads/OpenCore_Build/OpenCoreShell ]; then
+    echo "Missing OpenCoreShell repo folder."
+    shellclone
+  else
+    echo "OpenCoreShell repo exist, checking for updates."
+    shellcheck
+  fi
+
+  buildfoldercheck
 else
   mkdir ~/Downloads/OpenCore_Build
   cd ~/Downloads/OpenCore_Build
