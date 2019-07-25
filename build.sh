@@ -52,18 +52,69 @@ if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
 fi
 
 buildrelease() {
-  echo "Building latest commited Release version."
-  xcodebuild -configuration Release
+  local name=$(pwd)
+  local result=${name##*/}
+  if [ result == "Lilu" ]
+  then
+    name=Lilu
+  elif [ result == "WhateverGree"n ]
+  then
+    name=WhateverGreen
+  elif [ result == "CPUFriend" ]
+  then
+    name=CPUFriend
+  elif [ result == "AppleALC" ]
+  then
+    name=AppleALC
+  elif [ result == "VirtualSMC" ]
+  then
+    name=VirtualSMC
+  fi
+  echo "Compiling the latest commited Release version of $result."
+  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
 }
 
 builddebug() {
-  echo "Building latest commited Debug version."
-  xcodebuild -configuration Debug
+  local name=$(pwd)
+  local result=${name##*/}
+  if [ result == "Lilu" ]
+  then
+    name=Lilu
+  elif [ result == "WhateverGree"n ]
+  then
+    name=WhateverGreen
+  elif [ result == "CPUFriend" ]
+  then
+    name=CPUFriend
+  elif [ result == "AppleALC" ]
+  then
+    name=AppleALC
+  elif [ result == "VirtualSMC" ]
+  then
+    name=VirtualSMC
+  fi
+  echo "Compiling the latest commited Debug version of $result."
+  xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
 }
 
 buildmactool() {
-  echo "Building latest commited Release version."
-  ./macbuild.tool
+  local name=$(pwd)
+  local result=${name##*/}
+  if [ result == "OpenCorePkg" ]
+  then
+    name=OpenCorePkg
+  elif [ result == "AptioFixPkg" ]
+  then
+    name=AptioFixPkg
+  elif [ result == "AppleSupportPkg" ]
+  then
+    name=AppleSupportPkg
+  elif [ result == "OpenCoreShell" ]
+  then
+    name=OpenCoreShell
+  fi
+  echo "Compiling the latest commited Release and Debug version of $result."
+  ./macbuild.tool > /dev/null 2>&1 || exit 1
 }
 
 updaterepo() {
@@ -77,6 +128,24 @@ updaterepo() {
 }
 
 repocheck() {
+  local name=$(pwd)
+  local result=${name##*/}
+  if [ result == "Lilu" ]
+  then
+    name=Lilu
+  elif [ result == "WhateverGree"n ]
+  then
+    name=WhateverGreen
+  elif [ result == "CPUFriend" ]
+  then
+    name=CPUFriend
+  elif [ result == "AppleALC" ]
+  then
+    name=AppleALC
+  elif [ result == "VirtualSMC" ]
+  then
+    name=VirtualSMC
+  fi
   localoutput="$(git log --pretty=%H ...refs/heads/master^ | head -n 1)"
   remoteoutput="$(git ls-remote origin -h refs/heads/master |cut -f1)"
 
@@ -86,30 +155,48 @@ repocheck() {
     local status=1
   fi
   if [ $status = 0 ]; then
-    echo "$REPO repo is up to date."
+    echo "$result repo is up to date."
   elif [ $status = 1 ]; then
-    echo "$REPO repo is not up to date."
+    echo "$result repo is not up to date."
     sleep 1
     echo "Updating Repo"
-    git pull
-    builddebug
+    git pull > /dev/null 2>&1 || exit 1
+    builddebug 
     buildrelease
   fi
 }
 
 pkgcheck() {
-  if [ "`git log --pretty=%H ...refs/heads/master^ | head -n 1`" = "`git ls-remote origin -h refs/heads/master |cut -f1`" ] ; then
+  local name=$(pwd)
+  local result=${name##*/}
+  if [ result == "OpenCorePkg" ]
+  then
+    name=OpenCorePkg
+  elif [ result == "AptioFixPkg" ]
+  then
+    name=AptioFixPkg
+  elif [ result == "AppleSupportPkg" ]
+  then
+    name=AppleSupportPkg
+  elif [ result == "OpenCoreShell" ]
+  then
+    name=OpenCoreShell
+  fi
+  localoutput="$(git log --pretty=%H ...refs/heads/master^ | head -n 1)"
+  remoteoutput="$(git ls-remote origin -h refs/heads/master |cut -f1)"
+
+  if [ "$localoutput" = "$remoteoutput" ] ; then
     local status=0
   else
     local status=1
   fi
   if [ $status = 0 ]; then
-    echo "$REPO repo is up to date."
+    echo "$result repo is up to date."
   elif [ $status = 1 ]; then
-    echo "$REPO repo is not up to date."
+    echo "$result repo is not up to date."
     sleep 1
     echo "Updating Repo"
-    git pull
+    git pull > /dev/null 2>&1 || exit 1
     buildmactool
   fi
 }
@@ -124,6 +211,7 @@ repoClone() {
   repos[5]=https://github.com/acidanthera/OpenCorePkg.git
   repos[6]=https://github.com/acidanthera/AptioFixPkg.git
   repos[7]=https://github.com/acidanthera/AppleSupportPkg.git
+  repos[8]=https://github.com/acidanthera/OpenCoreShell.git
 
   dir[0]=~/Downloads/OpenCore_Build/Lilu
   dir[1]=~/Downloads/OpenCore_Build/WhateverGreen
@@ -134,26 +222,26 @@ repoClone() {
   pkg[0]=~/Downloads/OpenCore_Build/OpenCorePkg
   pkg[1]=~/Downloads/OpenCore_Build/AptioFixPkg
   pkg[2]=~/Downloads/OpenCore_Build/AppleSupportPkg
-
+  pkg[3]=~/Downloads/OpenCore_Build/OpenCoreShell
+  
   cd ~/Downloads/OpenCore_Build
   for i in "${repos[@]}"; do 
-    git clone $i
+    git clone $i > /dev/null 2>&1 || exit 1
   done 
 
   cd ~/Downloads/OpenCore_Build/Lilu
-  echo "Building latest commited Debug version of Lilu"
   builddebug 
 
-  for x in "${dir[@]}"; do
+  for x in "${dir[@]}"
+  do
     cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext $x
     cd $x
-    echo "Building latest commited Release version of $x"
     buildrelease
   done 
 
-  for x in "${pkg[@]}"; do
+  for x in "${pkg[@]}"
+  do
     cd $x
-    echo "Building latest commited Release version of $x"
     buildmactool
   done 
 }
@@ -170,7 +258,7 @@ makeDirectories() {
 }
 
 copyBuildProducts() {
-  echo "Copying Built Products into EFI Structure folder on your desktop."
+  echo "Copying compiled products into EFI Structure folder on your desktop."
   cp ~/Downloads/OpenCore_Build/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip ~/Desktop/CompletedBuilds/ 
   cd ~/Desktop/CompletedBuilds
   unzip *.zip > /dev/null 2>&1 || exit 1
@@ -184,7 +272,8 @@ copyBuildProducts() {
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
-  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
+  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools
+  cp -r ~/Downloads/OpenCore_Build/OpenCoreShell/Binaries/RELEASE/Shell.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
   cp -r ~/Downloads/OpenCore_Build/AppleSupportPkg/Binaries/RELEASE/*.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
   echo "All Done!"
 }
@@ -245,9 +334,16 @@ supportcheck() {
   sleep 1
 }
 
+shellcheck() {
+  local REPO=OpenCoreShell
+  cd ~/Downloads/OpenCore_Build/OpenCoreShell
+  pkgcheck
+  sleep 1
+}
+
 if [ -d ~/Downloads/OpenCore_Build ]; then
-  echo "Repo already exist."
-  echo "Checking if there is any updates to repos."
+  echo "Acidanthera's Repos already exist."
+  echo "Checking if there is any updates to the repos."
   lilucheck
   wegcheck
   alccheck
@@ -256,8 +352,9 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
   occheck
   aptiocheck
   supportcheck
+  shellcheck
   if [ ! -d ~/Desktop/CompletedBuilds ]; then
-    echo "Missing CompletedBuilds on your desktop."
+    echo "Missing CompletedBuilds folder on your desktop."
     makeDirectories
     copyBuildProducts
   else
