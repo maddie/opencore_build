@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BUILD_DIR="~/Downloads/OpenCore_Build"
-FINAL_DIR="~/Desktop/CompletedBuilds"
+BUILD_DIR="${HOME}/Source/OpenCore/Build"
+FINAL_DIR="${HOME}/Source/OpenCore/CompletedBuilds"
 
 length=${#BUILD_DIR} # macOS's older bash needs temp variable, as just -1 won't work
 [[ "${BUILD_DIR}" == */ ]] && BUILD_DIR="${BUILD_DIR:0:length-1}" # remove trailing slash
@@ -256,24 +256,24 @@ repoClone() {
 
 makeDirectories() {
     if [ ! -d "${FINAL_DIR}/" ]; then
-    echo "Creating Opencore EFI structure on your desktop."
+    echo "Creating Opencore EFI structure."
     mkdir "${FINAL_DIR}/"
   else
-    echo "Updating current CompletedBuilds folder on your desktop."
+    echo "Updating current CompletedBuilds folder."
     rm -rf "${FINAL_DIR}/"
     mkdir "${FINAL_DIR}/"
   fi
 }
 
 copyBuildProducts() {
-  echo "Copying compiled products into EFI Structure folder on your desktop."
-  cp "${BUILD_DIR}/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip" "${FINAL_DIR}/" 
+  echo "Copying compiled products into EFI Structure folder in ${FINAL_DIR}."
+  cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip "${FINAL_DIR}/" 
   cd "${FINAL_DIR}/"
   unzip *.zip > /dev/null 2>&1 || exit 1
   rm -rf *.zip
   cp -r "${BUILD_DIR}/Lilu/build/Release/Lilu.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
   cp -r "${BUILD_DIR}/AppleALC/build/Release/AppleALC.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}/VirtualSMC/build/Release/*.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}"/VirtualSMC/build/Release/*.kext "${FINAL_DIR}/EFI/OC/Kexts" 
   cp -r "${BUILD_DIR}/WhateverGreen/build/Release/WhateverGreen.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
   cp -r "${BUILD_DIR}/CPUFriend/build/Release/CPUFriend.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
   cp -r "${BUILD_DIR}/VirtualSMC/EfiDriver/VirtualSmc.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
@@ -282,7 +282,7 @@ copyBuildProducts() {
   cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi" "${FINAL_DIR}/EFI/OC/Tools" 
   cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi" "${FINAL_DIR}/EFI/OC/Tools"
   cp -r "${BUILD_DIR}/OpenCoreShell/Binaries/RELEASE/Shell.efi" "${FINAL_DIR}/EFI/OC/Tools" 
-  cp -r "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/*.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
+  cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/*.efi "${FINAL_DIR}/EFI/OC/Drivers" 
   echo "All Done!"
 }
 
@@ -439,7 +439,7 @@ shellclone() {
 
 buildfoldercheck() {
   if [ ! -d "${FINAL_DIR}/" ]; then
-    echo "Missing CompletedBuilds folder on your desktop."
+    echo "Missing CompletedBuilds folder."
     makeDirectories
     copyBuildProducts
   else
