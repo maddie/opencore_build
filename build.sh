@@ -1,5 +1,13 @@
 #!/bin/bash
 
+BUILD_DIR="~/Downloads/OpenCore_Build"
+FINAL_DIR="~/Desktop/CompletedBuilds"
+
+length=${#BUILD_DIR} # macOS's older bash needs temp variable, as just -1 won't work
+[[ "${BUILD_DIR}" == */ ]] && BUILD_DIR="${BUILD_DIR:0:length-1}" # remove trailing slash
+length=${#FINAL_DIR}
+[[ "${FINAL_DIR}" == */ ]] && FINAL_DIR="${FINAL_DIR:0:length-1}"
+
 check=$((xcode-\select --install) 2>&1)
 str="xcode-select: note: install requested for command line developer tools"
 
@@ -213,28 +221,28 @@ repoClone() {
   repos[7]=https://github.com/acidanthera/AppleSupportPkg.git
   repos[8]=https://github.com/acidanthera/OpenCoreShell.git
 
-  dir[0]=~/Downloads/OpenCore_Build/Lilu
-  dir[1]=~/Downloads/OpenCore_Build/WhateverGreen
-  dir[2]=~/Downloads/OpenCore_Build/AppleALC
-  dir[3]=~/Downloads/OpenCore_Build/CPUFriend
-  dir[4]=~/Downloads/OpenCore_Build/VirtualSMC
+  dir[0]="${BUILD_DIR}/Lilu"
+  dir[1]="${BUILD_DIR}/WhateverGreen"
+  dir[2]="${BUILD_DIR}/AppleALC"
+  dir[3]="${BUILD_DIR}/CPUFriend"
+  dir[4]="${BUILD_DIR}/VirtualSMC"
 
-  pkg[0]=~/Downloads/OpenCore_Build/OpenCorePkg
-  pkg[1]=~/Downloads/OpenCore_Build/AptioFixPkg
-  pkg[2]=~/Downloads/OpenCore_Build/AppleSupportPkg
-  pkg[3]=~/Downloads/OpenCore_Build/OpenCoreShell
+  pkg[0]="${BUILD_DIR}/OpenCorePkg"
+  pkg[1]="${BUILD_DIR}/AptioFixPkg"
+  pkg[2]="${BUILD_DIR}/AppleSupportPkg"
+  pkg[3]="${BUILD_DIR}/OpenCoreShell"
   
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   for i in "${repos[@]}"; do 
     git clone $i > /dev/null 2>&1 || exit 1
   done 
 
-  cd ~/Downloads/OpenCore_Build/Lilu
+  cd "${BUILD_DIR}/Lilu"
   builddebug 
 
   for x in "${dir[@]}"
   do
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext $x
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" $x
     cd $x
     buildrelease
   done 
@@ -247,190 +255,190 @@ repoClone() {
 }
 
 makeDirectories() {
-    if [ ! -d ~/Desktop/CompletedBuilds ]; then
+    if [ ! -d "${FINAL_DIR}/" ]; then
     echo "Creating Opencore EFI structure on your desktop."
-    mkdir ~/Desktop/CompletedBuilds
+    mkdir "${FINAL_DIR}/"
   else
     echo "Updating current CompletedBuilds folder on your desktop."
-    rm -rf ~/Desktop/CompletedBuilds
-    mkdir ~/Desktop/CompletedBuilds
+    rm -rf "${FINAL_DIR}/"
+    mkdir "${FINAL_DIR}/"
   fi
 }
 
 copyBuildProducts() {
   echo "Copying compiled products into EFI Structure folder on your desktop."
-  cp ~/Downloads/OpenCore_Build/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip ~/Desktop/CompletedBuilds/ 
-  cd ~/Desktop/CompletedBuilds
+  cp "${BUILD_DIR}/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip" "${FINAL_DIR}/" 
+  cd "${FINAL_DIR}/"
   unzip *.zip > /dev/null 2>&1 || exit 1
   rm -rf *.zip
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Release/Lilu.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/AppleALC/build/Release/AppleALC.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/build/Release/*.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/WhateverGreen/build/Release/WhateverGreen.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/CPUFriend/build/Release/CPUFriend.kext ~/Desktop/CompletedBuilds/EFI/OC/Kexts 
-  cp -r ~/Downloads/OpenCore_Build/VirtualSMC/EfiDriver/VirtualSmc.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
-  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
-  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
-  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
-  cp -r ~/Downloads/OpenCore_Build/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools
-  cp -r ~/Downloads/OpenCore_Build/OpenCoreShell/Binaries/RELEASE/Shell.efi ~/Desktop/CompletedBuilds/EFI/OC/Tools 
-  cp -r ~/Downloads/OpenCore_Build/AppleSupportPkg/Binaries/RELEASE/*.efi ~/Desktop/CompletedBuilds/EFI/OC/Drivers 
+  cp -r "${BUILD_DIR}/Lilu/build/Release/Lilu.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}/AppleALC/build/Release/AppleALC.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}/VirtualSMC/build/Release/*.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}/WhateverGreen/build/Release/WhateverGreen.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}/CPUFriend/build/Release/CPUFriend.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
+  cp -r "${BUILD_DIR}/VirtualSMC/EfiDriver/VirtualSmc.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
+  cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/AptioInputFix.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
+  cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
+  cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/CleanNvram.efi" "${FINAL_DIR}/EFI/OC/Tools" 
+  cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/VerifyMsrE2.efi" "${FINAL_DIR}/EFI/OC/Tools"
+  cp -r "${BUILD_DIR}/OpenCoreShell/Binaries/RELEASE/Shell.efi" "${FINAL_DIR}/EFI/OC/Tools" 
+  cp -r "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/*.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
   echo "All Done!"
 }
 
 lilucheck() {
-  cd ~/Downloads/OpenCore_Build/Lilu
+  cd "${BUILD_DIR}/Lilu"
   repocheck
   sleep 1
 }
 
 wegcheck() {
-  cd ~/Downloads/OpenCore_Build/WhateverGreen
+  cd "${BUILD_DIR}/WhateverGreen"
   repocheck
   sleep 1
 }
 
 alccheck() {
-  cd ~/Downloads/OpenCore_Build/AppleALC
+  cd "${BUILD_DIR}/AppleALC"
   repocheck
   sleep 1
 }
 
 cpucheck() {
-  cd ~/Downloads/OpenCore_Build/CPUFriend
+  cd "${BUILD_DIR}/CPUFriend"
   repocheck
   sleep 1
 }
 
 smccheck() {
-  cd ~/Downloads/OpenCore_Build/VirtualSMC
+  cd "${BUILD_DIR}/VirtualSMC"
   repocheck
   sleep 1
 }
 
 occheck() {
-  cd ~/Downloads/OpenCore_Build/OpenCorePkg
+  cd "${BUILD_DIR}/OpenCorePkg"
   pkgcheck
   sleep 1
 }
 
 aptiocheck() {
-  cd ~/Downloads/OpenCore_Build/AptioFixPkg
+  cd "${BUILD_DIR}/AptioFixPkg"
   pkgcheck
   sleep 1
 }
 
 supportcheck() {
-  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
+  cd "${BUILD_DIR}/AppleSupportPkg"
   pkgcheck
   sleep 1
 }
 
 shellcheck() {
-  cd ~/Downloads/OpenCore_Build/OpenCoreShell
+  cd "${BUILD_DIR}/OpenCoreShell"
   pkgcheck
   sleep 1
 }
 
 liluclone() {
-  local dir[0]=~/Downloads/OpenCore_Build/Lilu
-  local dir[1]=~/Downloads/OpenCore_Build/WhateverGreen
-  local dir[2]=~/Downloads/OpenCore_Build/AppleALC
-  local dir[3]=~/Downloads/OpenCore_Build/CPUFriend
-  local dir[4]=~/Downloads/OpenCore_Build/VirtualSMC
+  local dir[0]="${BUILD_DIR}/Lilu"
+  local dir[1]="${BUILD_DIR}/WhateverGreen"
+  local dir[2]="${BUILD_DIR}/AppleALC"
+  local dir[3]="${BUILD_DIR}/CPUFriend"
+  local dir[4]="${BUILD_DIR}/VirtualSMC"
 
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning Lilu repo."
   git clone https://github.com/acidanthera/Lilu.git > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/Lilu
+  cd "${BUILD_DIR}/Lilu"
   builddebug
   buildrelease
   for x in "${dir[@]}"
   do
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext $x
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" $x
     cd $x
   done
   sleep 1
 }
 
 wegclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning WhateverGreen repo."
   git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen
-  cd ~/Downloads/OpenCore_Build/WhateverGreen
+  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/WhateverGreen"
+  cd "${BUILD_DIR}/WhateverGreen"
   buildrelease
   sleep 1
 }
 
 alcclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning AppleALC repo."
   git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC
-  cd ~/Downloads/OpenCore_Build/AppleALC
+  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/AppleALC"
+  cd "${BUILD_DIR}/AppleALC"
   buildrelease
   sleep 1
 }
 
 cpuclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning CPUFriend repo."
   git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend
-  cd ~/Downloads/OpenCore_Build/CPUFriend
+  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/CPUFriend"
+  cd "${BUILD_DIR}/CPUFriend"
   buildrelease
   sleep 1
 }
 
 smcclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning VirtualSMC repo."
   git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
-  cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC
-  cd ~/Downloads/OpenCore_Build/VirtualSMC
+  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/VirtualSMC"
+  cd "${BUILD_DIR}/VirtualSMC"
   buildrelease
   sleep 1
 }
 
 occlone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning OpenCore repo."
   git clone https://github.com/acidanthera/OpenCorePkg.gitt > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/OpenCorePkg
+  cd "${BUILD_DIR}/OpenCorePkg"
   buildmactool
   sleep 1
 }
 
 aptioclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning AptioFix repo."
   git clone https://github.com/acidanthera/AptioFixPkg.git > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/AptioFixPkg
+  cd "${BUILD_DIR}/AptioFixPkg"
   buildmactool
   sleep 1
 }
 
 supportclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning AppleSupport repo."
   git clone https://github.com/acidanthera/AppleSupportPkg.git > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/AppleSupportPkg
+  cd "${BUILD_DIR}/AppleSupportPkg"
   buildmactool
   sleep 1
 }
 
 shellclone() {
-  cd ~/Downloads/OpenCore_Build
+  cd "${BUILD_DIR}/"
   echo "Cloning OpenCoreShell repo."
   git clone https://github.com/acidanthera/OpenCoreShell.git > /dev/null 2>&1 || exit 1
-  cd ~/Downloads/OpenCore_Build/OpenCoreShell
+  cd "${BUILD_DIR}/OpenCoreShell"
   buildmactool
   sleep 1
 }
 
 buildfoldercheck() {
-  if [ ! -d ~/Desktop/CompletedBuilds ]; then
+  if [ ! -d "${FINAL_DIR}/" ]; then
     echo "Missing CompletedBuilds folder on your desktop."
     makeDirectories
     copyBuildProducts
@@ -441,9 +449,9 @@ buildfoldercheck() {
   fi
 }
 
-if [ -d ~/Downloads/OpenCore_Build ]; then
+if [ -d "${BUILD_DIR}/" ]; then
   echo "Acidanthera's Repos already exist."
-  if [ ! -d ~/Downloads/OpenCore_Build/Lilu ]; then
+  if [ ! -d "${BUILD_DIR}/Lilu" ]; then
     echo "Missing Lilu repo folder."
     liluclone
   else
@@ -451,7 +459,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     lilucheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/WhateverGreen ]; then
+  if [ ! -d "${BUILD_DIR}/WhateverGreen" ]; then
     echo "Missing WhateverGreen repo folder."
     wegclone
   else
@@ -459,7 +467,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     wegcheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/AppleALC ]; then
+  if [ ! -d "${BUILD_DIR}/AppleALC" ]; then
     echo "Missing AppleALC repo folder."
     alcclone
   else
@@ -467,7 +475,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     alccheck
   fi
   
-  if [ ! -d ~/Downloads/OpenCore_Build/CPUFriend ]; then
+  if [ ! -d "${BUILD_DIR}/CPUFriend" ]; then
     echo "Missing CPUFriend repo folder."
     cpuclone
   else
@@ -475,7 +483,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     cpucheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/VirtualSMC ]; then
+  if [ ! -d "${BUILD_DIR}/VirtualSMC" ]; then
     echo "Missing VirtualSMC repo folder."
     smcclone
   else
@@ -483,7 +491,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     smccheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/OpenCorePkg ]; then
+  if [ ! -d "${BUILD_DIR}/OpenCorePkg" ]; then
     echo "Missing OpenCorePkg repo folder."
     occlone
   else
@@ -491,7 +499,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     occheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/AptioFixPkg ]; then
+  if [ ! -d "${BUILD_DIR}/AptioFixPkg" ]; then
     echo "Missing AptioFixPkg repo folder."
     aptioclone
   else
@@ -499,7 +507,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     aptiocheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/AppleSupportPkg ]; then
+  if [ ! -d "${BUILD_DIR}/AppleSupportPkg" ]; then
     echo "Missing AppleSupportPkg repo folder."
     supportclone
   else
@@ -507,7 +515,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     supportcheck
   fi
 
-  if [ ! -d ~/Downloads/OpenCore_Build/OpenCoreShell ]; then
+  if [ ! -d "${BUILD_DIR}/OpenCoreShell" ]; then
     echo "Missing OpenCoreShell repo folder."
     shellclone
   else
@@ -517,8 +525,8 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
 
   buildfoldercheck
 else
-  mkdir ~/Downloads/OpenCore_Build
-  cd ~/Downloads/OpenCore_Build
+  mkdir "${BUILD_DIR}/"
+  cd "${BUILD_DIR}/"
   repoClone
   makeDirectories
   copyBuildProducts
