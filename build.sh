@@ -370,7 +370,7 @@ smcclone() {
 occlone() {
   cd "${BUILD_DIR}/"
   echo "Cloning OpenCore repo."
-  git clone https://github.com/acidanthera/OpenCorePkg.gitt > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/OpenCorePkg.git > /dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/OpenCorePkg"
   buildmactool
   sleep 1
