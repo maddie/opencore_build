@@ -235,7 +235,7 @@ makeDirectories() {
 
 copyBuildProducts() {
   echo "Copying compiled products into EFI Structure folder in ${FINAL_DIR}."
-  cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/OpenCore-*-RELEASE.zip "${FINAL_DIR}/" 
+  cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/*.zip "${FINAL_DIR}/" 
   cd "${FINAL_DIR}/"
   unzip *.zip > /dev/null 2>&1 || exit 1
   rm -rf *.zip
