@@ -335,7 +335,6 @@ wegclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning WhateverGreen repo."
   git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
-  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/WhateverGreen"
   cd "${BUILD_DIR}/WhateverGreen"
   buildrelease
   sleep 1
@@ -345,7 +344,6 @@ alcclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning AppleALC repo."
   git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
-  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/AppleALC"
   cd "${BUILD_DIR}/AppleALC"
   buildrelease
   sleep 1
@@ -355,7 +353,6 @@ cpuclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning CPUFriend repo."
   git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
-  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/CPUFriend"
   cd "${BUILD_DIR}/CPUFriend"
   buildrelease
   sleep 1
@@ -365,7 +362,6 @@ smcclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning VirtualSMC repo."
   git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
-  cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/VirtualSMC"
   cd "${BUILD_DIR}/VirtualSMC"
   buildrelease
   sleep 1
@@ -434,7 +430,7 @@ if [ -d "${BUILD_DIR}/" ]; then
     wegclone
   else
     echo "WhateverGreen repo exist, checking for updates."
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/WhateverGreen"
     wegcheck
   fi
 
@@ -443,7 +439,7 @@ if [ -d "${BUILD_DIR}/" ]; then
     alcclone
   else
     echo "AppleALC repo exist, checking for updates."
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/AppleALC"
     alccheck
   fi
   
@@ -452,7 +448,7 @@ if [ -d "${BUILD_DIR}/" ]; then
     cpuclone
   else
     echo "CPUFriend repo exist, checking for updates."
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/CPUFriend"
     cpucheck
   fi
 
@@ -461,7 +457,7 @@ if [ -d "${BUILD_DIR}/" ]; then
     smcclone
   else
     echo "VirtualSMC repo exist, checking for updates."
-    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/VirtualSMC"
     smccheck
   fi
 
