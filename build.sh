@@ -27,6 +27,38 @@ do
   exit;  
 done
 
+if [ "$(nasm -v)" = "" ] || [ "$(nasm -v | grep Apple)" != "" ]; then
+  echo "Missing or incompatible nasm!"
+  echo "Download the latest nasm from http://www.nasm.us/pub/nasm/releasebuilds/"
+  prompt "Install last tested version automatically?"
+  pushd /tmp >/dev/null
+  rm -rf nasm-mac64.zip
+  curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/nasm-mac64.zip" || exit 1
+  nasmzip=$(cat nasm-mac64.zip)
+  rm -rf nasm-*
+  curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${nasmzip}" || exit 1
+  unzip -q "${nasmzip}" nasm*/nasm nasm*/ndisasm || exit 1
+  sudo mkdir -p /usr/local/bin || exit 1
+  sudo mv nasm*/nasm /usr/local/bin/ || exit 1
+  sudo mv nasm*/ndisasm /usr/local/bin/ || exit 1
+  rm -rf "${nasmzip}" nasm-*
+  popd >/dev/null
+fi
+
+if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
+  echo "Missing mtoc or mtoc.NEW!"
+  echo "To build mtoc follow: https://github.com/tianocore/tianocore.github.io/wiki/Xcode#mac-os-x-xcode"
+  prompt "Install prebuilt mtoc and mtoc.NEW automatically?"
+  pushd /tmp >/dev/null
+  rm -f mtoc mtoc-mac64.zip
+  curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/mtoc-mac64.zip" || exit 1
+  unzip -q mtoc-mac64.zip mtoc || exit 1
+  sudo mkdir -p /usr/local/bin || exit 1
+  sudo cp mtoc /usr/local/bin/mtoc || exit 1
+  sudo mv mtoc /usr/local/bin/mtoc.NEW || exit 1
+  popd >/dev/null
+fi
+
 buildrelease() {
   local name=$(pwd)
   local result=${name##*/}
@@ -47,7 +79,7 @@ buildrelease() {
     name=VirtualSMC
   fi
   echo "Compiling the latest commited Release version of $result."
-  xcodebuild -configuration Release > /dev/null 2>&1 || exit 1
+  xcodebuild -configuration Release >/dev/null 2>&1 || exit 1
 }
 
 builddebug() {
@@ -70,7 +102,7 @@ builddebug() {
     name=VirtualSMC
   fi
   echo "Compiling the latest commited Debug version of $result."
-  xcodebuild -configuration Debug > /dev/null 2>&1 || exit 1
+  xcodebuild -configuration Debug >/dev/null 2>&1 || exit 1
 }
 
 buildmactool() {
@@ -90,7 +122,7 @@ buildmactool() {
     name=OpenCoreShell
   fi
   echo "Compiling the latest commited Release and Debug version of $result."
-  ./macbuild.tool > /dev/null 2>&1 || exit 1
+  ./macbuild.tool >/dev/null 2>&1 || exit 1
 }
 
 updaterepo() {
@@ -136,7 +168,7 @@ repocheck() {
     echo "$result repo is not up to date."
     sleep 1
     echo "Updating Repo"
-    git pull > /dev/null 2>&1 || exit 1
+    git pull >/dev/null 2>&1 || exit 1
     builddebug 
     buildrelease
   fi
@@ -172,7 +204,7 @@ pkgcheck() {
     echo "$result repo is not up to date."
     sleep 1
     echo "Updating Repo"
-    git pull > /dev/null 2>&1 || exit 1
+    git pull >/dev/null 2>&1 || exit 1
     buildmactool
   fi
 }
@@ -202,7 +234,7 @@ repoClone() {
   
   cd "${BUILD_DIR}/"
   for i in "${repos[@]}"; do 
-    git clone $i > /dev/null 2>&1 || exit 1
+    git clone $i >/dev/null 2>&1 || exit 1
   done 
 
   cd "${BUILD_DIR}/Lilu"
@@ -237,7 +269,7 @@ copyBuildProducts() {
   echo "Copying compiled products into EFI Structure folder in ${FINAL_DIR}."
   cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/*.zip "${FINAL_DIR}/" 
   cd "${FINAL_DIR}/"
-  unzip *.zip > /dev/null 2>&1 || exit 1
+  unzip *.zip >/dev/null 2>&1 || exit 1
   rm -rf *.zip
   cp -r "${BUILD_DIR}/Lilu/build/Release/Lilu.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
   cp -r "${BUILD_DIR}/AppleALC/build/Release/AppleALC.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
@@ -250,7 +282,7 @@ copyBuildProducts() {
   cd "$BUILD_DIR/AppleSupportPkg/Binaries/RELEASE"
   rm -rf "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/Drivers"
   rm -rf "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/Tools"
-  unzip *.zip > /dev/null 2>&1 || exit 1
+  unzip *.zip >/dev/null 2>&1 || exit 1
   cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/Drivers/*.efi "${FINAL_DIR}/EFI/OC/Drivers"
   cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/Tools/*.efi "${FINAL_DIR}/EFI/OC/Tools" 
   echo "All Done!"
@@ -319,13 +351,13 @@ liluclone() {
 
   cd "${BUILD_DIR}/"
   echo "Cloning Lilu repo."
-  git clone https://github.com/acidanthera/Lilu.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/Lilu.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/Lilu"
   builddebug
   buildrelease
   for x in "${dir[@]}"
   do
-    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" $x
+    cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" $x >/dev/null 2>&1 || exit 1
     cd $x
   done
   sleep 1
@@ -334,7 +366,7 @@ liluclone() {
 wegclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning WhateverGreen repo."
-  git clone https://github.com/acidanthera/WhateverGreen.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/WhateverGreen.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/WhateverGreen"
   buildrelease
   sleep 1
@@ -343,7 +375,7 @@ wegclone() {
 alcclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning AppleALC repo."
-  git clone https://github.com/acidanthera/AppleALC.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/AppleALC.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/AppleALC"
   buildrelease
   sleep 1
@@ -352,7 +384,7 @@ alcclone() {
 cpuclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning CPUFriend repo."
-  git clone https://github.com/acidanthera/CPUFriend.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/CPUFriend.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/CPUFriend"
   buildrelease
   sleep 1
@@ -361,7 +393,7 @@ cpuclone() {
 smcclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning VirtualSMC repo."
-  git clone https://github.com/acidanthera/VirtualSMC.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/VirtualSMC.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/VirtualSMC"
   buildrelease
   sleep 1
@@ -370,7 +402,7 @@ smcclone() {
 occlone() {
   cd "${BUILD_DIR}/"
   echo "Cloning OpenCore repo."
-  git clone https://github.com/acidanthera/OpenCorePkg.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/OpenCorePkg.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/OpenCorePkg"
   buildmactool
   sleep 1
@@ -379,7 +411,7 @@ occlone() {
 aptioclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning AptioFix repo."
-  git clone https://github.com/acidanthera/AptioFixPkg.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/AptioFixPkg.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/AptioFixPkg"
   buildmactool
   sleep 1
@@ -388,7 +420,7 @@ aptioclone() {
 supportclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning AppleSupport repo."
-  git clone https://github.com/acidanthera/AppleSupportPkg.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/AppleSupportPkg.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/AppleSupportPkg"
   buildmactool
   sleep 1
@@ -397,7 +429,7 @@ supportclone() {
 shellclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning OpenCoreShell repo."
-  git clone https://github.com/acidanthera/OpenCoreShell.git > /dev/null 2>&1 || exit 1
+  git clone https://github.com/acidanthera/OpenCoreShell.git >/dev/null 2>&1 || exit 1
   cd "${BUILD_DIR}/OpenCoreShell"
   buildmactool
   sleep 1
