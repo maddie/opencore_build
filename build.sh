@@ -38,9 +38,9 @@ if [ "$(nasm -v)" = "" ] || [ "$(nasm -v | grep Apple)" != "" ]; then
   rm -rf nasm-*
   curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/${nasmzip}" || exit 1
   unzip -q "${nasmzip}" nasm*/nasm nasm*/ndisasm || exit 1
-  sudo mkdir -p /usr//bin || exit 1
-  sudo mv nasm*/nasm /usr//bin/ || exit 1
-  sudo mv nasm*/ndisasm /usr//bin/ || exit 1
+  sudo mkdir -p /usr/local/bin || exit 1
+  sudo mv nasm*/nasm /usr/local/bin/ || exit 1
+  sudo mv nasm*/ndisasm /usr/local/bin/ || exit 1
   rm -rf "${nasmzip}" nasm-*
   popd >/dev/null
 fi
@@ -53,9 +53,9 @@ if [ "$(which mtoc.NEW)" == "" ] || [ "$(which mtoc)" == "" ]; then
   rm -f mtoc mtoc-mac64.zip
   curl -OL "https://github.com/acidanthera/ocbuild/raw/master/external/mtoc-mac64.zip" || exit 1
   unzip -q mtoc-mac64.zip mtoc || exit 1
-  sudo mkdir -p /usr//bin || exit 1
-  sudo cp mtoc /usr//bin/mtoc || exit 1
-  sudo mv mtoc /usr//bin/mtoc.NEW || exit 1
+  sudo mkdir -p /usr/local/bin || exit 1
+  sudo cp mtoc /usr/local/bin/mtoc || exit 1
+  sudo mv mtoc /usr/local/bin/mtoc.NEW || exit 1
   popd >/dev/null
 fi
 
