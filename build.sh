@@ -456,6 +456,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     wegclone
   else
     echo "WhateverGreen repo exist, checking for updates."
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/WhateverGreen
     wegcheck
   fi
 
@@ -464,6 +465,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     alcclone
   else
     echo "AppleALC repo exist, checking for updates."
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/AppleALC
     alccheck
   fi
   
@@ -472,6 +474,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     cpuclone
   else
     echo "CPUFriend repo exist, checking for updates."
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/CPUFriend
     cpucheck
   fi
 
@@ -480,6 +483,7 @@ if [ -d ~/Downloads/OpenCore_Build ]; then
     smcclone
   else
     echo "VirtualSMC repo exist, checking for updates."
+    cp -r ~/Downloads/OpenCore_Build/Lilu/build/Debug/Lilu.kext ~/Downloads/OpenCore_Build/VirtualSMC
     smccheck
   fi
 
