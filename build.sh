@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BUILD_DIR="${HOME}/Source/OpenCore/Build"
-FINAL_DIR="${HOME}/Source/OpenCore/CompletedBuilds"
+BUILD_DIR="${HOME}/Downloads/OpenCore_Build"
+FINAL_DIR="${HOME}/Desktop/CompletedBuilds"
 
 length=${#BUILD_DIR} # macOS's older bash needs temp variable, as just -1 won't work
 [[ "${BUILD_DIR}" == */ ]] && BUILD_DIR="${BUILD_DIR:0:length-1}" # remove trailing slash
@@ -256,7 +256,7 @@ repoClone() {
 
 makeDirectories() {
     if [ ! -d "${FINAL_DIR}/" ]; then
-    echo "Creating Opencore EFI structure."
+    echo "Creating Opencore EFI structure in ${FINAL_DIR}}."
     mkdir "${FINAL_DIR}/"
   else
     echo "Updating current CompletedBuilds folder."
@@ -439,7 +439,7 @@ shellclone() {
 
 buildfoldercheck() {
   if [ ! -d "${FINAL_DIR}/" ]; then
-    echo "Missing CompletedBuilds folder."
+    echo "Missing ${FINAL_DIR} folder."
     makeDirectories
     copyBuildProducts
   else
