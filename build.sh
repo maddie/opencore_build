@@ -109,7 +109,7 @@ repocheck() {
   if [ result == "Lilu" ]
   then
     name=Lilu
-  elif [ result == "WhateverGree"n ]
+  elif [ result == "WhateverGreen" ]
   then
     name=WhateverGreen
   elif [ result == "CPUFriend" ]
