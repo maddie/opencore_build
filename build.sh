@@ -24,7 +24,7 @@ prompt() {
 while [[ "$check" == "$str" ]];
 do
   osascript -e 'tell app "System Events" to display dialog "xcode command-line tools missing." buttons "OK" default button 1 with title "xcode command-line tools"'
-  exit;  
+  exit;
 done
 
 if [ "$(nasm -v)" = "" ] || [ "$(nasm -v | grep Apple)" != "" ]; then
@@ -111,9 +111,6 @@ buildmactool() {
   if [ result == "OpenCorePkg" ]
   then
     name=OpenCorePkg
-  elif [ result == "AptioFixPkg" ]
-  then
-    name=AptioFixPkg
   elif [ result == "AppleSupportPkg" ]
   then
     name=AppleSupportPkg
@@ -169,7 +166,7 @@ repocheck() {
     sleep 1
     echo "Updating Repo"
     git pull >/dev/null 2>&1 || exit 1
-    builddebug 
+    builddebug
     buildrelease
   fi
 }
@@ -180,9 +177,6 @@ pkgcheck() {
   if [ result == "OpenCorePkg" ]
   then
     name=OpenCorePkg
-  elif [ result == "AptioFixPkg" ]
-  then
-    name=AptioFixPkg
   elif [ result == "AppleSupportPkg" ]
   then
     name=AppleSupportPkg
@@ -217,7 +211,6 @@ repoClone() {
   repos[3]=https://github.com/acidanthera/CPUFriend.git
   repos[4]=https://github.com/acidanthera/VirtualSMC.git
   repos[5]=https://github.com/acidanthera/OpenCorePkg.git
-  repos[6]=https://github.com/acidanthera/AptioFixPkg.git
   repos[7]=https://github.com/acidanthera/AppleSupportPkg.git
   repos[8]=https://github.com/acidanthera/OpenCoreShell.git
 
@@ -228,30 +221,29 @@ repoClone() {
   dir[4]="${BUILD_DIR}/VirtualSMC"
 
   pkg[0]="${BUILD_DIR}/OpenCorePkg"
-  pkg[1]="${BUILD_DIR}/AptioFixPkg"
   pkg[2]="${BUILD_DIR}/AppleSupportPkg"
   pkg[3]="${BUILD_DIR}/OpenCoreShell"
-  
+
   cd "${BUILD_DIR}/"
-  for i in "${repos[@]}"; do 
+  for i in "${repos[@]}"; do
     git clone $i >/dev/null 2>&1 || exit 1
-  done 
+  done
 
   cd "${BUILD_DIR}/Lilu"
-  builddebug 
+  builddebug
 
   for x in "${dir[@]}"
   do
     cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" $x
     cd $x
     buildrelease
-  done 
+  done
 
   for x in "${pkg[@]}"
   do
     cd $x
     buildmactool
-  done 
+  done
 }
 
 makeDirectories() {
@@ -267,24 +259,23 @@ makeDirectories() {
 
 copyBuildProducts() {
   echo "Copying compiled products into EFI Structure folder in ${FINAL_DIR}."
-  cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/*.zip "${FINAL_DIR}/" 
+  cp "${BUILD_DIR}"/OpenCorePkg/Binaries/RELEASE/*.zip "${FINAL_DIR}/"
   cd "${FINAL_DIR}/"
   unzip *.zip >/dev/null 2>&1 || exit 1
   rm -rf *.zip
-  cp -r "${BUILD_DIR}/Lilu/build/Release/Lilu.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}/AppleALC/build/Release/AppleALC.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}"/VirtualSMC/build/Release/*.kext "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}/WhateverGreen/build/Release/WhateverGreen.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}/CPUFriend/build/Release/CPUFriend.kext" "${FINAL_DIR}/EFI/OC/Kexts" 
-  cp -r "${BUILD_DIR}/VirtualSMC/EfiDriver/VirtualSmc.efi" "${FINAL_DIR}/EFI/OC/Drivers" 
-  cp -r "${BUILD_DIR}/AptioFixPkg/Binaries/RELEASE/AptioMemoryFix.efi" "${FINAL_DIR}/EFI/OC/Drivers"
+  cp -r "${BUILD_DIR}/Lilu/build/Release/Lilu.kext" "${FINAL_DIR}/EFI/OC/Kexts"
+  cp -r "${BUILD_DIR}/AppleALC/build/Release/AppleALC.kext" "${FINAL_DIR}/EFI/OC/Kexts"
+  cp -r "${BUILD_DIR}"/VirtualSMC/build/Release/*.kext "${FINAL_DIR}/EFI/OC/Kexts"
+  cp -r "${BUILD_DIR}/WhateverGreen/build/Release/WhateverGreen.kext" "${FINAL_DIR}/EFI/OC/Kexts"
+  cp -r "${BUILD_DIR}/CPUFriend/build/Release/CPUFriend.kext" "${FINAL_DIR}/EFI/OC/Kexts"
+  cp -r "${BUILD_DIR}/VirtualSMC/EfiDriver/VirtualSmc.efi" "${FINAL_DIR}/EFI/OC/Drivers"
   cp -r "${BUILD_DIR}/OpenCoreShell/Binaries/RELEASE/Shell.efi" "${FINAL_DIR}/EFI/OC/Tools"
   cd "$BUILD_DIR/AppleSupportPkg/Binaries/RELEASE"
   rm -rf "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/Drivers"
   rm -rf "${BUILD_DIR}/AppleSupportPkg/Binaries/RELEASE/Tools"
   unzip *.zip >/dev/null 2>&1 || exit 1
   cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/Drivers/*.efi "${FINAL_DIR}/EFI/OC/Drivers"
-  cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/Tools/*.efi "${FINAL_DIR}/EFI/OC/Tools" 
+  cp -r "${BUILD_DIR}"/AppleSupportPkg/Binaries/RELEASE/Tools/*.efi "${FINAL_DIR}/EFI/OC/Tools"
   echo "All Done!"
 }
 
@@ -320,12 +311,6 @@ smccheck() {
 
 occheck() {
   cd "${BUILD_DIR}/OpenCorePkg"
-  pkgcheck
-  sleep 1
-}
-
-aptiocheck() {
-  cd "${BUILD_DIR}/AptioFixPkg"
   pkgcheck
   sleep 1
 }
@@ -408,15 +393,6 @@ occlone() {
   sleep 1
 }
 
-aptioclone() {
-  cd "${BUILD_DIR}/"
-  echo "Cloning AptioFix repo."
-  git clone https://github.com/acidanthera/AptioFixPkg.git >/dev/null 2>&1 || exit 1
-  cd "${BUILD_DIR}/AptioFixPkg"
-  buildmactool
-  sleep 1
-}
-
 supportclone() {
   cd "${BUILD_DIR}/"
   echo "Cloning AppleSupport repo."
@@ -474,7 +450,7 @@ if [ -d "${BUILD_DIR}/" ]; then
     cp -r "${BUILD_DIR}/Lilu/build/Debug/Lilu.kext" "${BUILD_DIR}/AppleALC"
     alccheck
   fi
-  
+
   if [ ! -d "${BUILD_DIR}/CPUFriend" ]; then
     echo "Missing CPUFriend repo folder."
     cpuclone
@@ -499,14 +475,6 @@ if [ -d "${BUILD_DIR}/" ]; then
   else
     echo "OpenCorePkg repo exist, checking for updates."
     occheck
-  fi
-
-  if [ ! -d "${BUILD_DIR}/AptioFixPkg" ]; then
-    echo "Missing AptioFixPkg repo folder."
-    aptioclone
-  else
-    echo "AptioFixPkg repo exist, checking for updates."
-    aptiocheck
   fi
 
   if [ ! -d "${BUILD_DIR}/AppleSupportPkg" ]; then
